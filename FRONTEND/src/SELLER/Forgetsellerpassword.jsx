@@ -22,7 +22,7 @@ export function Forgetsellerpassword({ href }) {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:3000/api/v1/seller/forgetpassword", data, {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}seller/forgetpassword`, data, {
         withCredentials: true
       });
 

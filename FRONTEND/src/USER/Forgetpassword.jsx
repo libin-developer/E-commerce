@@ -22,7 +22,7 @@ const Forgetpassworduser = ({ href }) => {
 
   const onSubmit = async (data) => {
     try {
-      const request = await axios.post("http://localhost:3000/api/v1/user/forgetpassword", data, {
+      const request = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/forgetpassword`, data, {
         withCredentials: true,
       });
 

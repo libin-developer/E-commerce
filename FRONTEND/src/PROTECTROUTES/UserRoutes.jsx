@@ -9,7 +9,7 @@ const UserRoutes = ({ children }) => {
     const checkUser = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/api/v1/user/check-user",
+          `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/check-user`,
           {
             withCredentials: true,
           },

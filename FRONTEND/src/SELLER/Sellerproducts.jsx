@@ -15,7 +15,7 @@ const SellerProducts = () => {
     const fetchProducts = async () => {
       try {
         const sellerId = localStorage.getItem('sellerId');
-        const response = await axios.get(`http://localhost:3000/api/v1/product/seller-product/${sellerId}`, {
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/seller-product/${sellerId}`, {
           withCredentials: true,
         });
         if (response.data.success) {
@@ -52,7 +52,7 @@ const SellerProducts = () => {
 
     try {
       const response = await axios.delete(
-        `http://localhost:3000/api/v1/product/remove-product/${productToRemove}`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/remove-product/${productToRemove}`,
         { withCredentials: true }
       );
       if (response.data.success) {

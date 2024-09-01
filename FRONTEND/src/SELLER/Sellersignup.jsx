@@ -24,7 +24,7 @@ export function Sellersignup({ href }) {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:3000/api/v1/seller/signup", data, {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}seller/signup`, data, {
         withCredentials: true
       });
       if (response.data.success) {

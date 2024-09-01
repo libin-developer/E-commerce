@@ -26,7 +26,7 @@ export default function ReviewForm({productId}) {
       try {
         const reviewer = localStorage.getItem("username");  // Fetch the username from localStorage
 
-        const review = await axios.post(`http://localhost:3000/api/v1/review/add-review/${id}`, {
+        const review = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}review/add-review/${id}`, {
           comment,
           rating,
           productId,  // Pass the correct product ID

@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/v1/product/total-status',{
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/total-status`,{
           withCredentials:true
         });
         setStats(response.data);
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
   const handleDeleteAccount = async () => {
     const id =localStorage.getItem("adminId")
     try {
-     const res =await axios.delete(`http://localhost:3000/api/v1/admin/delete-admin/${id}`,{
+     const res =await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}admin/delete-admin/${id}`,{
         withCredentials:true
       });
       if(res.data.success){

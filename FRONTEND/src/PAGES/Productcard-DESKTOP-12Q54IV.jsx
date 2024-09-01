@@ -12,7 +12,7 @@ export default function ProductCard() {
 
   const fetchData = async (page) => {
     try {
-      const response = await axios.get("http://localhost:3000/api/v1/product/get-product", {
+      const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/get-product`, {
         params: { page, limit: 8 },
       });
       setProducts(response.data.products);
@@ -47,7 +47,7 @@ export default function ProductCard() {
     e.preventDefault();
     if (query.trim()) {
       try {
-        const response = await axios.get(`http://localhost:3000/api/v1/product/searchproduct`, {
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/searchproduct`, {
           params: { q: query },
           withCredentials: true,
         });

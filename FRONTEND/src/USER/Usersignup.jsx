@@ -35,14 +35,14 @@ export default function Usersignup({ href }) {
         email,
         password,
       }; 
-      const response = await axios.post("http://localhost:3000/api/v1/user/signup", data, {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/signup`, data, {
         withCredentials: true
       });
       console.log(response.data.success);
       if (response.data.success) {
-        localStorage.setItem("username",response.data.username.sellername)
-        localStorage.setItem("email",response.data.email.email)
-        localStorage.setItem("userId",response.data._id.sellerId)
+        localStorage.setItem("username",response.data.username)
+        localStorage.setItem("email",response.data.email)
+        localStorage.setItem("userId",response.data._id)
         toast.success(response.data.message);
         navigate("/home");
       } else {

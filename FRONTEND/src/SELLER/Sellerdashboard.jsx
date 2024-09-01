@@ -26,7 +26,7 @@ export function Sellerdashboard() {
                 const sellerId = localStorage.getItem('sellerId');
                 const token = localStorage.getItem('token'); // Get the token from localStorage
                 
-                const productsResponse = await axios.get(`http://localhost:3000/api/v1/product/${sellerId}/totalproducts`, {
+                const productsResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/${sellerId}/totalproducts`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -34,7 +34,7 @@ export function Sellerdashboard() {
                 });
                 setTotalProducts(productsResponse.data.total);
 
-                const reviewsResponse = await axios.get(`http://localhost:3000/api/v1/product/reviews-count/${sellerId}`,{
+                const reviewsResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/reviews-count/${sellerId}`,{
                     withCredentials: true,
                 });
                 setTotalReviews(reviewsResponse.data.totalReviews);
@@ -58,7 +58,7 @@ export function Sellerdashboard() {
         try {
             const id = localStorage.getItem("sellerId");
            
-            const deleteuser = await axios.delete(`http://localhost:3000/api/v1/seller/delete-seller/${id}`, {
+            const deleteuser = await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}seller/delete-seller/${id}`, {
                 withCredentials: true,
             });
 

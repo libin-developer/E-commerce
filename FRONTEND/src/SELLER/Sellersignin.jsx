@@ -23,7 +23,7 @@ export function Sellersignin({ href, forget }) {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:3000/api/v1/seller/signin", data, {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}seller/signin`, data, {
         withCredentials: true
       });
 

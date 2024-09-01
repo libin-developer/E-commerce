@@ -73,7 +73,7 @@ const router = createBrowserRouter([
     children:[
       {path:"/seller", element:<Sellersignin href={"/seller/signup"} forget={"/seller/forgetpassword"}/>},
       {path:"/seller/signup", element:<Sellersignup href={"/seller"}/>},
-      {path:"/seller/forgetpassword", element:<Forgetsellerpassword forget={"/seller"}/>}
+      {path:"/seller/forgetpassword", element:<Forgetsellerpassword href={"/seller"}/>}
     ]
    },
 

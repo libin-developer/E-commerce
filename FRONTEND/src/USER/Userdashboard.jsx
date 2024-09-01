@@ -45,7 +45,7 @@ const UserDashboard = () => {
             if (!userId) {
                 throw new Error("User not logged in.");
             }
-            const response = await axios.get(`http://localhost:3000/api/v1/payment/transactions/${userId}`, {
+            const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}payment/transactions/${userId}`, {
                 withCredentials: true
             });
             setTransactionHistory(response.data.transactions);
@@ -65,7 +65,7 @@ const UserDashboard = () => {
     const handleDeleteUser = async () => {
         try {
             const userId = localStorage.getItem("userId");
-            const deleteuser = await axios.delete(`http://localhost:3000/api/v1/user/delete-account/${userId}`, {
+            const deleteuser = await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/delete-account/${userId}`, {
                 withCredentials: true
             });
             if (deleteuser.data.success) {

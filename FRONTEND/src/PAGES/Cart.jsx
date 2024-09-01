@@ -17,7 +17,7 @@ const CartPage = () => {
     useEffect(() => {
         const fetchCart = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/v1/cart/${userId}`,{withCredentials:true});
+                const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}cart/${userId}`,{withCredentials:true});
                 setCart(response.data);
                 setError(null);
             } catch (error) {
@@ -35,7 +35,7 @@ const CartPage = () => {
 
     const handleClearCart = async () => {
         try {
-            const response = await axios.delete(`http://localhost:3000/api/v1/cart/clear/${cart._id}`,{withCredentials:true});
+            const response = await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}cart/clear/${cart._id}`,{withCredentials:true});
 
             if (response.status === 200) {
                 setCart(response.data.cart); // Update cart state with the cleared cart
@@ -49,7 +49,7 @@ const CartPage = () => {
 
     const handlePayment = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/api/v1/payment/create-order', {
+            const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}payment/create-order`, {
                 amount: cart.totalAmount,
                 currency: 'INR',
             },{withCredentials:true});
@@ -67,7 +67,7 @@ const CartPage = () => {
                 order_id: orderId,
                 handler: async function (response) {
                     try {
-                        await axios.post('http://localhost:3000/api/v1/payment/capture-payment', {
+                        await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}payment/capture-payment`, {
                             paymentId: response.razorpay_payment_id,
                             orderId: response.razorpay_order_id,
                             amount: cart.totalAmount,
@@ -79,7 +79,7 @@ const CartPage = () => {
                             paymentStatus: 'captured', // Set status as 'captured'
                         },{withCredentials:true});
                         toast.success('Payment successful!');
-                        await axios.delete(`http://localhost:3000/api/v1/cart/clear/${cart._id}`,{withCredentials:true});
+                        await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}cart/clear/${cart._id}`,{withCredentials:true});
                         navigate('/home/payment-status/success');
                     } catch (error) {
                         console.error('Error capturing payment:', error);
@@ -88,7 +88,7 @@ const CartPage = () => {
                 },
                 modal: {
                     ondismiss: function() {
-                        axios.post('http://localhost:3000/api/v1/payment/capture-payment', {
+                        axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}payment/capture-payment`, {
                             paymentId: null,
                             orderId: orderId,
                             amount: cart.totalAmount,

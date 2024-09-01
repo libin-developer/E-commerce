@@ -1,5 +1,3 @@
-// src/components/ProductDetails.jsx
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -19,7 +17,7 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/v1/product/product/${id}`);
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/product/${id}`);
         setProduct(response.data);
         setError(null);
       } catch (error) {
@@ -49,7 +47,7 @@ const ProductDetails = () => {
       if (!userId || userId.length !== 24) { // 24 is the length of a MongoDB ObjectId
         throw new Error("Invalid user ID");
       }
-      await axios.post(`http://localhost:3000/api/v1/cart/add-cart`, {
+      await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}cart/add-cart`, {
         userId,
         productId: product._id,
         quantity,
@@ -100,9 +98,16 @@ const ProductDetails = () => {
             <Typography variant="h4" className="text-gray-800 dark:text-white mb-2">
               {product.productname}
             </Typography>
-            <Typography variant="h6" className="text-gray-600 dark:text-gray-400 mb-4">
-              Stock: {product.stock}
-            </Typography>
+            {/* Conditionally Render Stock Information */}
+            {product.stock > 0 ? (
+              <Typography variant="h6" className="text-gray-600 dark:text-gray-400 mb-4">
+                Stock: {product.stock}
+              </Typography>
+            ) : (
+              <Typography variant="h6" color="error" className="mb-4">
+                Out of Stock
+              </Typography>
+            )}
             <Typography variant="h6" className="font-bold text-gray-800 dark:text-gray-300 mb-4">
               Price: ₹{product.price}
             </Typography>
@@ -121,6 +126,7 @@ const ProductDetails = () => {
                   color="primary"
                   onClick={handleAddToCart}
                   endIcon={<HiShoppingCart />} // Adding HiShoppingCart icon
+                  disabled={product.stock <= 0} // Disable button if out of stock
                 >
                   Add to Cart
                 </Button>

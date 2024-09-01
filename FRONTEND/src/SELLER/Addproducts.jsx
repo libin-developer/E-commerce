@@ -33,7 +33,7 @@ export default function AddProducts() {
   const loaddata = async () => {
     if (!isEdit) return;
     try {
-      const res = await axios.get(`http://localhost:3000/api/v1/product/product/${id}`);
+      const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/product/${id}`);
       const formData = res.data;
       Object.keys(formData).forEach((key) => {
         setValue(key, formData[key]);
@@ -61,7 +61,7 @@ export default function AddProducts() {
       if (!isEdit) {
         const sellerId = localStorage.getItem("sellerId");
         const res = await axios.post(
-          `http://localhost:3000/api/v1/product/add-product/${sellerId}`,
+          `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/add-product/${sellerId}`,
           requestBody,
           {
             withCredentials: true,
@@ -79,7 +79,7 @@ export default function AddProducts() {
         }
       } else {
         const res = await axios.put(
-          `http://localhost:3000/api/v1/product/update-product/${id}`,
+          `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/update-product/${id}`,
           requestBody,
           {
             withCredentials: true,

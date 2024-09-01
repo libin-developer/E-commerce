@@ -9,7 +9,7 @@ const AdminRoutes = ({ children }) => {
     const checkadmin = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/api/v1/admin/check-admin",
+          `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}admin/check-admin`,
           {
             withCredentials: true,
           },
