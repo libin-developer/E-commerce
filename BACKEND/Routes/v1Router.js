@@ -2,10 +2,11 @@ import express from "express"
 import { sellerRouter } from "./sellerRouter.js";
 import productRouter from "./productRouter.js";
 import reviewRouter from "./reviewRouter.js";
-import CartRouter from "./cartRouter.js";
+
 import UserRouter from "./userRoutes.js";
 import { adminRouter } from "./adminRouter.js";
 import paymentRouter from "./paymentRouter.js";
+import CartRouter from "./CartRouter.js";
 
 
 
