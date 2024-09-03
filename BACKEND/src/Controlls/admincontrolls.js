@@ -1,5 +1,5 @@
 import Admin from "../DBmodels/adminmodel.js"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import { sendPasswordChangeEmail } from "../NODEMAILER/nodemailer.js";
 import adminToken from "../JWT/admintoken.js";
 import { Emailexist } from "../EMAILEXIST/findemailexist.js";

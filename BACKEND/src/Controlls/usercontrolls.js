@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import generateToken from "../JWT/generatetoken.js"
 import { sendPasswordChangeEmail } from "../NODEMAILER/nodemailer.js"
 import { Emailexist } from "../EMAILEXIST/findemailexist.js"
