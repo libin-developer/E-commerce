@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-import serverconfig from "../../src/serverconfig.js";
+import serverconfig from "../Config/serverconfig.js";
+
+
 
 
 
