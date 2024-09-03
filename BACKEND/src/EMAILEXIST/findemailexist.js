@@ -1,6 +1,6 @@
-import User from "../DBmodels/usermodel.js"
 import Seller from "../DBmodels/sellermodel.js"
 import Admin from "../DBmodels/adminmodel.js";
+import User from "../DBmodels/usermodel.js";
 
 
 export const Emailexist =async (email)=>{

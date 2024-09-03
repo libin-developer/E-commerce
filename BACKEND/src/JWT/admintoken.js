@@ -3,6 +3,8 @@ import serverconfig from "../Config/serverconfig.js";
 
 
 
+
+
     const adminToken = (user) => {
     return jwt.sign({ data: user.email, role: user.role },serverconfig.token, {expiresIn: "1d",});
   }

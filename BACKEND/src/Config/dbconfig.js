@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
-import serverconfig from "./serverconfig.js";
+import serverconfig from "../../src/serverconfig.js";
+
+
+
 
 
 console.log(serverconfig.mongodburl);

@@ -1,8 +1,10 @@
-import User from "../DBmodels/usermodel.js"
+
 import bcrypt from "bcrypt"
-import generateToken from "../JWT/generatetoken.js"
-import { sendPasswordChangeEmail } from "../NODEMAILER/nodemailer.js"
+
 import { Emailexist } from "../EMAILEXIST/findemailexist.js"
+import { sendPasswordChangeEmail } from "../../src/NODEMAILER/nodemailer.js"
+import User from "../../src/DBmodels/usermodel.js"
+import generateToken from "../../src/JWT/generatetoken.js"
 
 
 
