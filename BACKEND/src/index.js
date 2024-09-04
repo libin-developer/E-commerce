@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(cors(
   {
-    origin:"http://localhost:5173", //frontend prot
+    origin:"https://e-commerce-snowy-three.vercel.app/", //frontend prot
     credentials:true,
   }
 ))
