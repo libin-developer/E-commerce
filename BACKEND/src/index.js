@@ -17,6 +17,7 @@ app.use(cors(
   {
     origin:"https://e-commerce-1z4a5mtwi-libin-developers-projects.vercel.app", //frontend prot
     credentials:true,
+    allowedHeaders: ['Authorization', 'Content-Type'], 
   }
 ))
 
