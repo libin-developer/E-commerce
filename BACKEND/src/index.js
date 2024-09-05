@@ -1,9 +1,10 @@
 import express from "express";
-import serverconfig from "./Config/serverconfig.js";
+
 import cookieParser from "cookie-parser";
 import cors from "cors"
 import { apiRouter } from "./Routes/apiRouter.js";
 import { connect } from "./Config/dbconfig.js";
+import serverconfig from "../src/Config/serverconfig.js";
 
 
 
