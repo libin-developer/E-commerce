@@ -55,7 +55,7 @@ export const signup =async(req,res)=>{
 
         
         const Token =generateToken(email)
-        res.cookie("token",Token)
+        res.cookie("token",Token,{httpOnly:true, secure:true,sameSite:'None',})
         console.log("signup successfully")
         return res.status(200).json({message:"signup successfully",sellername:createseller.sellername,email:createseller.email,sellerId:createseller._id,success:true,})
     } catch (error) {
@@ -82,7 +82,7 @@ export const signup =async(req,res)=>{
         }
         
         const Token =generateToken(email)
-        res.cookie("token",Token)
+        res.cookie("token",Token,{httpOnly:true, secure:true,sameSite:'None',})
         console.log("sigin successfully")
         return res.status(200).json({message:"sigin successfully",sellername:seller.sellername,email:seller.email,sellerId:seller._id,success:true})
     } catch (error) {
@@ -114,7 +114,7 @@ export const forgetpassword =async(req,res)=>{
 
         
         const Token =generateToken(email)
-        res.cookie("token",Token)
+        res.cookie("token",Token,{httpOnly:true, secure:true,sameSite:'None',})
         await sendPasswordChangeEmail(email, seller.sellername)
         console.log("password change successfully")
         res.status(200).send({message:"password change successfully",success:true})

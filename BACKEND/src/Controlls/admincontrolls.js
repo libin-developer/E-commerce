@@ -48,7 +48,7 @@ export const signup =async(req,res)=>{
         await newadmincreate.save();
 
         const token =adminToken(newadmincreate)
-        res.cookie("token",token)
+        res.cookie("token",token,{httpOnly:true, secure:true,sameSite:'None',})
         console.log("signup successfully")
         return res.status(200).json({message:"signup successfully",adminname:newadmincreate.adminname,email:newadmincreate.email,role:newadmincreate.role,adminId:newadmincreate._id,success:true})
     
@@ -74,7 +74,7 @@ export const signin =async(req,res)=>{
         }
         
         const token =adminToken(admin)
-        res.cookie("token",token)
+        res.cookie("token",token,{httpOnly:true, secure:true,sameSite:'None',})
         console.log("signin successfully")
         return res.status(200).json({message:"signin successfully",adminname:admin.adminname,email:admin.email,role:admin.role,adminId:admin._id,success:true})
 
