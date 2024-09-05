@@ -60,7 +60,7 @@ export const usersignup = async(req,res)=>{
         }
         const token = generateToken(email);
     
-        res.cookie("token", token,{httpOnly: true, sameSite: 'none',})
+        res.cookie("token", token,{httpOnly:true, secure:true,sameSite:'None',})
         console.log("signup successfully")
         return res.status(200).send({message:"signup successfully",username:newUsercreated.username,email:newUsercreated.email,_id:newUsercreated._id,success:true})
         
@@ -92,7 +92,7 @@ export const usersignin = async (req, res) => {
       }
   
       const token = generateToken(email);
-      res.cookie("token",token,{httpOnly: true, sameSite: 'none',});
+      res.cookie("token",token,{httpOnly: true, secure: true,sameSite:'None',});
       console.log("login successfully")
       res.status(200).send({message:"Logged in!",username:user.username,email:user.email, _id: user._id,success:true});
      
@@ -125,7 +125,7 @@ export const usersignin = async (req, res) => {
         await user.save();
 
         const Token =generateToken(email);
-        res.cookie("token",Token,{httpOnly: true, sameSite: 'none',})
+        res.cookie("token",Token,{httpOnly:true, secure: true,sameSite:'None',})
         await sendPasswordChangeEmail(email, user.username);
         console.log("password change successfully")
         return res.status(200).send({message:"password change successfully",success:true})

@@ -7,7 +7,6 @@ const UserRoutes = ({ children }) => {
 
   useEffect(() => {
     const checkUser = async () => {
-      sessionStorage.getItem()
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/check-user`,
