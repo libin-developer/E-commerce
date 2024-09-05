@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(cors(
   {
-    origin:"https://e-commerce-7vr4wn75r-libin-developers-projects.vercel.app", //frontend prot
+    origin:"https://e-commerce-omega-virid.vercel.app", //frontend prot
     credentials:true,
   }
 ))
