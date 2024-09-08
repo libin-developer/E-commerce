@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, CircularProgress } from "@mui/material";
 import PropTypes from 'prop-types';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -23,30 +23,34 @@ const Signin = ({ href, forget }) => {
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false); // Loading state
 
   const onSubmit = async () => {
+    setLoading(true); // Start loading
     try {
       const data = {
         email,
         password,
       };
-      
-      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/signin`, data,{
+
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/signin`, data, {
         withCredentials: true,
       });
 
       if (response.data.success) {
-          localStorage.setItem("userId",response.data._id)
-          localStorage.setItem("username",response.data.username);
-          localStorage.setItem("email",response.data.email);
-          toast.success(response.data.message);
-          navigate("/home");
+        localStorage.setItem("userId", response.data._id);
+        localStorage.setItem("username", response.data.username);
+        localStorage.setItem("email", response.data.email);
+        toast.success(response.data.message);
+        navigate("/home");
       } else {
         toast.error(response.data.message || "Signin failed");
       }
     } catch (error) {
       console.error("Error during sign-in:", error);
       toast.error(error.response?.data?.message || "An error occurred during sign-in.");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -85,10 +89,18 @@ const Signin = ({ href, forget }) => {
                 />
               </div>
               <div>
-                <Button type="submit" variant="contained" color="primary" fullWidth>Submit</Button>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  color="primary" 
+                  fullWidth
+                  disabled={loading} // Disable button when loading
+                >
+                  {loading ? <CircularProgress size={24} /> : "Submit"} {/* Show spinner when loading */}
+                </Button>
               </div>
               <div className="text-center">
-                <a className="text-black-400 block" href={href}>I dont have an account?</a>
+                <a className="text-black-400 block" href={href}>I don't have an account?</a>
                 <a className="text-black-400 block mt-2" href={forget}>Forget Password?</a>
               </div>
             </div>
