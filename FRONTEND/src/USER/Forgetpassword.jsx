@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, CircularProgress } from "@mui/material";
 import PropTypes from 'prop-types';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -6,6 +6,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 const schema = yup.object({
   email: yup.string().required("Enter your email"),
@@ -19,8 +20,10 @@ const Forgetpassworduser = ({ href }) => {
 
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
+  const [loading, setLoading] = useState(false); // State for loading animation
 
   const onSubmit = async (data) => {
+    setLoading(true); // Start loading when the form is submitted
     try {
       const request = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/forgetpassword`, data, {
         withCredentials: true,
@@ -34,6 +37,8 @@ const Forgetpassworduser = ({ href }) => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false); // Stop loading when the request is completed
     }
   };
 
@@ -70,7 +75,15 @@ const Forgetpassworduser = ({ href }) => {
                 />
               </div>
               <div>
-                <Button type="submit" variant="contained" color="primary" fullWidth>Submit</Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  disabled={loading} // Disable button while loading
+                >
+                  {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"} {/* Show loading spinner */}
+                </Button>
               </div>
               <div className="text-center">
                 <a className="text-black-400 block mt-4" href={href}>Sign In?</a>

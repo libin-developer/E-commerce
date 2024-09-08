@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, CircularProgress } from "@mui/material"; // Import CircularProgress for loading spinner
 import PropTypes from 'prop-types';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -6,6 +6,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useState } from "react"; // Import useState for loading state
 
 const schema = yup.object({
   email: yup.string().email("Invalid email address").required("Email is required"),
@@ -20,8 +21,10 @@ export function Forgetadminpassword({ href }) {
 
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false); // State to track loading
 
   const onSubmit = async (data) => {
+    setLoading(true); // Show loading spinner when request starts
     try {
       const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}admin/forgetpassword`, data, {
         withCredentials: true
@@ -35,6 +38,8 @@ export function Forgetadminpassword({ href }) {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false); // Stop loading spinner after request finishes
     }
   };
 
@@ -69,7 +74,15 @@ export function Forgetadminpassword({ href }) {
             />
           </div>
           <div>
-            <Button type="submit" variant="contained" color="primary" fullWidth>Submit</Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={loading} // Disable button when loading
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"} {/* Display loading spinner */}
+            </Button>
           </div>
           <div className="text-center">
             <a className="text-black-400" href={href}>Sign in?</a>

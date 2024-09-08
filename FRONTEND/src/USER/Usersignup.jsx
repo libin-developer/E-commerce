@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, CircularProgress } from "@mui/material";
 import PropTypes from 'prop-types';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -24,11 +24,12 @@ export default function Usersignup({ href }) {
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [username,setUsername] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
+  const [loading, setLoading] = useState(false); // State to manage loading
 
   const onSubmit = async () => {
+    setLoading(true); // Set loading to true when submit is clicked
     try {
       const data = {
         username,
@@ -40,9 +41,9 @@ export default function Usersignup({ href }) {
       });
       console.log(response.data.success);
       if (response.data.success) {
-        localStorage.setItem("username",response.data.username)
-        localStorage.setItem("email",response.data.email)
-        localStorage.setItem("userId",response.data._id)
+        localStorage.setItem("username", response.data.username);
+        localStorage.setItem("email", response.data.email);
+        localStorage.setItem("userId", response.data._id);
         toast.success(response.data.message);
         navigate("/home");
       } else {
@@ -51,13 +52,15 @@ export default function Usersignup({ href }) {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false); // Reset loading state after server response
     }
   };
 
   return (
-    <div className="bg-black h-svh flex  justify-center">
+    <div className="bg-black h-svh flex justify-center">
       <div className="w-full max-w-md py-8">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-white text-center mb-4 ">Signup</h1>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-white text-center mb-4">Signup</h1>
         <div className="bg-teal-300 p-6 rounded-md shadow-lg">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-3">
@@ -71,7 +74,7 @@ export default function Usersignup({ href }) {
                   helperText={errors.username?.message}
                   size="small"
                   className="bg-gray-50"
-                  onChange={(e)=>setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
               <div>
@@ -99,11 +102,19 @@ export default function Usersignup({ href }) {
                   helperText={errors.password?.message}
                   size="small"
                   className="bg-gray-50"
-                  onChange={(e)=>setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
               <div>
-                <Button type="submit" variant="contained" color="primary" fullWidth>Submit</Button>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  color="primary" 
+                  fullWidth 
+                  disabled={loading}  // Disable the button when loading
+                >
+                  {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}  {/* Show loading spinner */}
+                </Button>
               </div>
               <div>
                 <a className="text-black block text-center" href={href}>Already have an account?</a>
@@ -113,5 +124,5 @@ export default function Usersignup({ href }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

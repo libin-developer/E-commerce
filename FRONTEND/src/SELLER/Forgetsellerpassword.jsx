@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, CircularProgress } from "@mui/material";
 import PropTypes from 'prop-types';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -6,6 +6,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 const schema = yup.object({
   email: yup.string().email("Invalid email address").required("Email is required"),
@@ -19,8 +20,10 @@ export function Forgetsellerpassword({ href }) {
 
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
+  const [loading, setLoading] = useState(false); // Loading state
 
   const onSubmit = async (data) => {
+    setLoading(true); // Start loading spinner
     try {
       const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}seller/forgetpassword`, data, {
         withCredentials: true
@@ -36,11 +39,13 @@ export function Forgetsellerpassword({ href }) {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false); // Stop loading spinner
     }
   };
 
   return (
-    <div className="bg-black min-h-screen flex  justify-center">
+    <div className="bg-black min-h-screen flex justify-center">
       <div className="w-full max-w-md py-8">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-white text-center mb-8">Forget Password</h1>
         <div className="bg-teal-300 p-6 rounded-md shadow-lg">
@@ -72,7 +77,15 @@ export function Forgetsellerpassword({ href }) {
                 />
               </div>
               <div>
-                <Button type="submit" variant="contained" color="primary" fullWidth>Submit</Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  disabled={loading} // Disable button during loading
+                >
+                  {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"} {/* Show spinner when loading */}
+                </Button>
               </div>
               <div className="text-center mt-4">
                 <a className="text-black-400" href={href}>Signin?</a>

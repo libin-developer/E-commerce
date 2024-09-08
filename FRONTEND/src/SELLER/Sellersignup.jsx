@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, CircularProgress } from "@mui/material";
 import PropTypes from 'prop-types';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -6,6 +6,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useState } from "react";
 
 const schema = yup.object({
   sellername: yup.string().min(3, "Seller name must be at least 3 characters").max(15, "Seller name must be at most 15 characters").required("Seller name is required"),
@@ -21,17 +22,19 @@ export function Sellersignup({ href }) {
 
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false); // State to track loading
 
   const onSubmit = async (data) => {
+    setLoading(true); // Start loading animation
     try {
       const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}seller/signup`, data, {
         withCredentials: true
       });
       if (response.data.success) {
-        localStorage.setItem("sellername",response.data.sellername)
-        localStorage.setItem("email",response.data.email)
-        localStorage.setItem("sellerId",response.data.sellerId)
-         toast.success(response.data.message);
+        localStorage.setItem("sellername", response.data.sellername);
+        localStorage.setItem("email", response.data.email);
+        localStorage.setItem("sellerId", response.data.sellerId);
+        toast.success(response.data.message);
         navigate("/sellerhome");
       } else {
         toast.error(response.data.message);
@@ -39,6 +42,8 @@ export function Sellersignup({ href }) {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false); // Stop loading animation
     }
   };
 
@@ -88,7 +93,15 @@ export function Sellersignup({ href }) {
                 />
               </div>
               <div>
-                <Button type="submit" variant="contained" color="primary" fullWidth>Submit</Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  disabled={loading} // Disable button during loading
+                >
+                  {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"} {/* Show loading spinner */}
+                </Button>
               </div>
               <div className="text-center">
                 <a className="text-black-400 block mt-4" href={href}>Already have an account?</a>

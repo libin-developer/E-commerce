@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, CircularProgress } from "@mui/material"; // Add CircularProgress for spinner
 import PropTypes from 'prop-types';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -6,6 +6,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useState } from "react"; // Add useState for loading
 
 const schema = yup.object({
   email: yup.string().email("Invalid email address").required("Email is required"),
@@ -21,17 +22,19 @@ export function Adminsignin({ href, forget }) {
 
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false); // Loading state
 
   const onSubmit = async (data) => {
+    setLoading(true); // Start loading spinner
     try {
       const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}admin/signin`, data, {
         withCredentials: true
       });
       if (response.data.success) {
-        localStorage.setItem("adminname",response.data.adminname)
-        localStorage.setItem("email",response.data.email)
-        localStorage.setItem("role",response.data.role)
-        localStorage.setItem("adminId",response.data.adminId)
+        localStorage.setItem("adminname", response.data.adminname);
+        localStorage.setItem("email", response.data.email);
+        localStorage.setItem("role", response.data.role);
+        localStorage.setItem("adminId", response.data.adminId);
         toast.success(response.data.message);
         navigate("/admin/dashboard");
       } else {
@@ -40,6 +43,8 @@ export function Adminsignin({ href, forget }) {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false); // Stop loading spinner
     }
   };
 
@@ -74,10 +79,18 @@ export function Adminsignin({ href, forget }) {
             />
           </div>
           <div>
-            <Button type="submit" variant="contained" color="primary" fullWidth>Submit</Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={loading} // Disable button when loading
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"} {/* Show spinner during loading */}
+            </Button>
           </div>
           <div className="text-center">
-            <a className="text-black-400" href={href}>I dont have an account?</a><br/>
+            <a className="text-black-400" href={href}>I don't have an account?</a><br />
             <a className="text-black-400" href={forget}>Forgot Password?</a>
           </div>
         </form>
