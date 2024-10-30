@@ -46,7 +46,7 @@ export default function ProductCard() {
 
   // Handle buy now
   const handleBuyNow = (productId) => {
-    navigate(`/home/product/${productId}`);
+    navigate(`/product/${productId}`);
   };
 
   // Handle search
@@ -62,7 +62,7 @@ export default function ProductCard() {
         });
         if (response.data.length === 0) {
           // Redirect if no products found
-          navigate('/home/no-products-found');
+          navigate('/no-products-found');
         }
         setProducts(response.data);
       } catch (error) {

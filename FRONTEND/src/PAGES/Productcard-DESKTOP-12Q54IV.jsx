@@ -40,7 +40,7 @@ export default function ProductCard() {
   };
 
   const handleBuyNow = (productId) => {
-    navigate(`/home/product/${productId}`);
+    navigate(`/product/${productId}`);
   };
 
   const handleSearch = async (e) => {

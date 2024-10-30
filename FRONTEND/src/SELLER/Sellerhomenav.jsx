@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaMoon, FaSun, FaUser, FaPlusCircle } from 'react-icons/fa';
+import { FaMoon, FaSun, FaUser, FaPlusCircle, FaHome } from 'react-icons/fa';
 import Logo from '../assets/BUYKART.jpg.png';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -32,6 +32,10 @@ const Sellerhomenav = () => {
     localStorage.setItem('darkMode', newDarkMode);
   };
 
+  const goToHome = () => {
+    navigate("/sellerhome");
+  };
+
   const goToDashboard = () => {
     navigate("/sellerhome/dashboard");
   };
@@ -60,6 +64,21 @@ const Sellerhomenav = () => {
         </div>
 
         <div className="flex items-center space-x-4">
+          {/* Home Icon with Glow Effect */}
+          <div className="relative group">
+            <button
+              onClick={goToHome}
+              className={`text-gray-700 dark:text-white p-2 rounded ${
+                darkMode ? 'bg-gray-700 shadow-lg' : 'bg-white shadow-lg'
+              } transition-all duration-300 ease-in-out hover:shadow-md dark:hover:shadow-indigo-500/50 hover:shadow-indigo-500/50`}
+            >
+              <FaHome size={24} />
+            </button>
+            <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-max px-2 py-0.5 text-xs text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+              Home
+            </span>
+          </div>
+
           {/* Profile Icon with Tooltip */}
           <div className="relative group">
             <button className="text-gray-700 dark:text-white" onClick={goToDashboard}>
@@ -80,10 +99,12 @@ const Sellerhomenav = () => {
             </span>
           </div>
 
+          {/* Dark Mode Toggle */}
           <button onClick={toggleDarkMode} className="text-gray-700 dark:text-white">
             {darkMode ? <FaSun size={24} /> : <FaMoon size={24} />}
           </button>
 
+          {/* Logout Button */}
           <button className="text-gray-700 dark:text-white" onClick={logout}>Logout</button>
         </div>
       </div>

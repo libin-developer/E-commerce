@@ -10,6 +10,13 @@ const Userhomenavbar = () => {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // New state to check authentication
+
+  useEffect(() => {
+    // Check if the user is authenticated by checking localStorage
+    const userId = localStorage.getItem("userId");
+    setIsAuthenticated(!!userId); // Set authentication state
+  }, []);
 
   useEffect(() => {
     // Retrieve dark mode setting from localStorage
@@ -51,12 +58,20 @@ const Userhomenavbar = () => {
   };
 
   const handleCartClick = () => {
-    navigate("/home/cart");
+    navigate("/cart");
   };
 
   const goToDashboard = () => {
-    navigate("/home/dashboard");
+    navigate("/dashboard");
     window.location.reload();
+  };
+
+  const goToHomePage = () => {
+    navigate("/"); // Navigate to the homepage
+  };
+
+  const goToSellerSignup = () => {
+    navigate("/seller"); // Navigate to the seller signup page
   };
 
   const logout = () => {
@@ -68,36 +83,61 @@ const Userhomenavbar = () => {
     localStorage.removeItem("cart"); // Clear cart from local storage
     localStorage.removeItem("cartItemCount"); // Clear cart item count from local storage
     toast.success("You have been logged out");
-    navigate("/");
+    setIsAuthenticated(false); // Update the authentication status
+    navigate("/signin");
     window.location.reload();
   };
 
   return (
     <nav className="bg-zinc-300 dark:bg-gray-800 shadow-md p-4">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex justify-between items-center flex-wrap">
         <div className="flex items-center">
           <img src={Logo} alt="Logo" className="w-10 h-10 mr-3 object-fit rounded-full border-transparent" />
           <span className="text-xl font-bold dark:text-white">BUYKART</span>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <button className="text-gray-700 dark:text-white" onClick={handleCartClick}>
-              <HiShoppingCart size={24} />
-              {cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2 py-1">
-                  {cartItemCount}
-                </span>
-              )}
-            </button>
-          </div>
-          <button className="text-gray-700 dark:text-white" onClick={goToDashboard}>
-            <FaUser size={24} />
-          </button>
-          <button onClick={toggleDarkMode} className="text-gray-700 dark:text-white">
-            {darkMode ? <FaSun size={24} /> : <FaMoon size={24} />}
-          </button>
-          <button className="text-gray-700 dark:text-white" onClick={logout}>Logout</button>
+        <div className="flex items-center space-x-4 mt-2 md:mt-0">
+          {isAuthenticated ? (
+            <>
+              <button
+                className="text-sm font-semibold px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 hover:shadow-lg transition duration-300 ease-in-out shadow-sm opacity-80 dark:bg-gray-900 dark:text-white"
+                onClick={goToHomePage}
+              >
+                Home
+              </button>
+              <div className="relative">
+                <button className="text-gray-700 dark:text-white" onClick={handleCartClick}>
+                  <HiShoppingCart size={24} />
+                  {cartItemCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+              <button className="text-gray-700 dark:text-white" onClick={goToDashboard}>
+                <FaUser size={24} />
+              </button>
+              <button onClick={toggleDarkMode} className="text-gray-700 dark:text-white">
+                {darkMode ? <FaSun size={24} /> : <FaMoon size={24} />}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="text-sm font-semibold px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 hover:shadow-lg transition duration-300 ease-in-out shadow-sm opacity-80 dark:bg-gray-900 dark:text-white"
+                onClick={() => navigate("/signin")}
+              >
+                Login
+              </button>
+              <button
+                className="text-sm font-semibold px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 hover:shadow-lg transition duration-300 ease-in-out shadow-sm opacity-80 dark:bg-gray-900 dark:text-white"
+                onClick={goToSellerSignup}
+              >
+                Sell Your Product
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>

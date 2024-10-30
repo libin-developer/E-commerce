@@ -7,9 +7,9 @@ const PaymentStatus = () => {
 
     const handleGoBack = () => {
         if (status === 'success') {
-            navigate('/home'); // Navigate back to the home page on success
+            navigate('/'); // Navigate back to the home page on success
         } else {
-            navigate('/home/cart'); // Navigate back to the cart page if payment is pending
+            navigate('/cart'); // Navigate back to the cart page if payment is pending
         }
     };
 

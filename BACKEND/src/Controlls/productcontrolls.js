@@ -257,3 +257,29 @@ export const countReviewsBySellerId = async (req, res) => {
     res.status(500).json({ message: 'Error counting reviews', error: error.message });
   }
 };
+
+  // Controller to get reviews for a specific product
+ export const getReviews = async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+      // Fetch the product by productId and select only the reviews field
+      const product = await Product.findById(productId).select('reviews');
+
+      // Check if product exists
+      if (!product) {
+          return res.status(404).json({ message: 'Product not found' });
+      }
+
+      // If there are no reviews, return a message with an empty array
+      if (product.reviews.length === 0) {
+          return res.status(200).json({ message: 'No reviews found', reviews: [] });
+      }
+
+      // Return the reviews array
+      return res.status(200).json({ reviews: product.reviews });
+  } catch (error) {
+      // Handle any errors
+      return res.status(500).json({ message: 'Error fetching reviews', error: error.message });
+  }
+};

@@ -15,10 +15,11 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(cors(
   {
-    origin:"https://e-commerce-omega-virid.vercel.app", //frontend prot
+    origin:"https://e-commerce-omega-virid.vercel.app", 
     credentials:true,
   }
 ))
+https://e-commerce-omega-virid.vercel.app frontend prot
 
 connect();
 app.get("/", (req, res) => {

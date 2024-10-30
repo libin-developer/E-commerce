@@ -1,31 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Button, ButtonGroup, Container, Paper, Rating, Typography } from '@mui/material';
-import { HiShoppingCart } from 'react-icons/hi'; // Importing HiShoppingCart icon
-import { formatDate } from "../../uTILS/formdate";
-import ReviewForm from './Addreview'; // Component for adding a review
+import { Box, Button, Container, Paper, Rating, Typography, useTheme } from '@mui/material';
+import { HiShoppingCart } from 'react-icons/hi';
 import toast from 'react-hot-toast';
+import ReviewForm from "./Addreview"; // Component for adding a review
 
 const ProductDetails = () => {
+  const theme = useTheme(); // Access MUI theme for dynamic styling
   const { id } = useParams(); // Extract product ID from URL
-  const navigate = useNavigate(); // Use for navigation
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [editMode, setEditMode] = useState(false); // For editing review
+  const [currentReview, setCurrentReview] = useState(null); // Holds review data to edit
+  const userId = localStorage.getItem('userId'); // Get the logged-in user's ID
+  const reviewFormRef = useRef(null); // Ref for the review form
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}product/product/${id}`);
-        setProduct(response.data);
-        setError(null);
+        if (response.data) {
+          setProduct(response.data);
+          setError(null);
+        } else {
+          setError('No product details available');
+        }
       } catch (error) {
         console.error('Failed to fetch product details:', error);
         setError('Failed to fetch product details. Please try again later.');
       }
     };
-
     fetchProductDetails();
   }, [id]);
 
@@ -43,22 +50,60 @@ const ProductDetails = () => {
 
   const handleAddToCart = async () => {
     try {
-      const userId = localStorage.getItem("userId"); // Get user ID from localStorage
-      if (!userId || userId.length !== 24) { // 24 is the length of a MongoDB ObjectId
-        throw new Error("Invalid user ID");
+      if (!userId || userId.length !== 24) {
+        toast.error("Please log in first.");
+        navigate("/signin");
+        return;
       }
       await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}cart/add-cart`, {
         userId,
         productId: product._id,
         quantity,
-      },{withCredentials:true});
-      navigate("/home/cart"); // Navigate to the cart page
+      }, { withCredentials: true });
+      navigate("/cart");
     } catch (error) {
       console.error('Failed to add product to cart:', error);
       toast.error('Failed to add product to cart. Please try again.');
     }
   };
-  
+
+  // Handle Delete Review
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      const response = await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}review/delete/${product._id}/${reviewId}/${userId}`, { withCredentials: true });
+      if (response.data.success) {
+        toast.success('Review deleted successfully');
+        setProduct((prevProduct) => ({
+          ...prevProduct,
+          reviews: prevProduct.reviews.filter(review => review._id !== reviewId),
+        }));
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error('Failed to delete review. Please try again later.');
+    }
+  };
+
+  // Handle Edit Review Mode
+  const handleEditReview = (review) => {
+    setCurrentReview(review);
+    setEditMode(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    setCurrentReview(null);
+  };
+
+  // Scroll to Review Form
+  const handleScrollToReviewForm = () => {
+    reviewFormRef.current.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Sort reviews by date (latest first)
+  const sortedReviews = product?.reviews.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
   if (error) {
     return (
       <Container>
@@ -98,92 +143,77 @@ const ProductDetails = () => {
             <Typography variant="h4" className="text-gray-800 dark:text-white mb-2">
               {product.productname}
             </Typography>
-            {/* Conditionally Render Stock Information */}
             {product.stock > 0 ? (
-              <Typography variant="h6" className="text-gray-600 dark:text-gray-400 mb-4">
-                Stock: {product.stock}
-              </Typography>
+              <Typography variant="subtitle1" className="text-green-500">In Stock</Typography>
             ) : (
-              <Typography variant="h6" color="error" className="mb-4">
-                Out of Stock
-              </Typography>
+              <Typography variant="subtitle1" className="text-red-500">Out of Stock</Typography>
             )}
-            <Typography variant="h6" className="font-bold text-gray-800 dark:text-gray-300 mb-4">
+            <Typography variant="h6" className="text-gray-700 dark:text-gray-300 mb-4">
               Price: ₹{product.price}
             </Typography>
-
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <ButtonGroup disableElevation variant="contained" aria-label="Quantity control buttons">
-                  <Button onClick={handleDecrement} disabled={quantity === 1}>-</Button>
-                  <Button sx={{ backgroundColor: 'grey' }}>Qty: {quantity}</Button>
-                  <Button onClick={handleIncrement} disabled={quantity >= product.stock}>+</Button>
-                </ButtonGroup>
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddToCart}
-                  endIcon={<HiShoppingCart />} // Adding HiShoppingCart icon
-                  disabled={product.stock <= 0} // Disable button if out of stock
-                >
-                  Add to Cart
-                </Button>
-              </Box>
-            </Box>
-
-            <Typography variant="h6" className="text-2xl mb-2 mt-8 text-gray-800 dark:text-white">
-              Product Details
-            </Typography>
-            <ul className="font-serif mb-6 font-medium text-gray-600 dark:text-gray-400">
-              <li>{product.description}</li>
-              <li>Seller: {product.sellerId.sellername}</li>
-            </ul>
+            <Button onClick={handleDecrement} disabled={quantity === 1}>-</Button>
+            <Typography className='dark:text-gray-300'>{quantity}</Typography>
+            <Button onClick={handleIncrement} disabled={quantity >= product.stock}>+</Button>
+            <Button
+              startIcon={<HiShoppingCart />}
+              variant="contained"
+              color="primary"
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
+              sx={{ mt: 2 }}
+            >
+              Add to Cart
+            </Button>
           </div>
         </div>
-      
-        {/* Product Reviews */}
-        <Box sx={{ mt: 4 }}>
-          <ReviewForm productId={product._id} />
-          <Typography variant="h5" gutterBottom className="dark:text-white">
-            Reviews
-          </Typography>
-          {product.reviews && product.reviews.length > 0 ? (
-            product.reviews.map((review, index) => (
-              <Paper
-                key={index}
-                elevation={3}
-                sx={{
-                  padding: 2,
-                  mb: 2,
-                  backgroundColor: 'white',
-                  dark: { backgroundColor: 'rgba(55, 65, 81, 1)' } // Tailwind's gray-700
-                }}
-              >
-                <Typography variant="subtitle1" className="dark:text-gray-300">
-                  {review.author}
-                </Typography>
-
-                <Typography variant="subtitle2" className="dark:text-gray-500">
-                  {formatDate(review.date)}
-                </Typography>
-
-                <Typography variant="body1" gutterBottom className="dark:text-gray-500">
-                  {review.comment}
-                </Typography>
-
-                <Rating
-                  name={`review-rating-${index}`}
-                  value={review.rating}
-                  readOnly
-                  precision={0.5}
-                />
-              </Paper>
-            ))
-          ) : (
-            <Typography className="dark:text-white">No reviews yet.</Typography>
-          )}
+        
+        {/* Reviews Section */}
+        <Button variant="contained" color="success" sx={{mt:4, color:"white"}} onClick={handleScrollToReviewForm}>
+          Post Your Review
+        </Button>
+        <Typography
+          variant="h5"
+          sx={{
+            mt: 4,
+            mb: 2,
+            color: 'green',
+          }} 
+          className='dark:text-gray-300'
+        >
+          Customer Reviews
+        </Typography>
+        {sortedReviews.map(review => (
+          <Paper key={review._id} sx={{ p: 2, mb: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold">{review.reviewerName}</Typography>
+            <Rating value={review.rating} readOnly />
+            <Typography variant="body2">{review.comment}</Typography>
+            {userId === review.reviewer && (
+              <>
+                <Button onClick={() => handleEditReview(review)}>Edit</Button>
+                <Button onClick={() => handleDeleteReview(review._id)}>Delete</Button>
+              </>
+            )}
+          </Paper>
+        ))}
+        
+        {/* Add/Edit Review Form */}
+        <Box ref={reviewFormRef}> {/* Attach ref here */}
+          <ReviewForm
+            productId={product._id}
+            editMode={editMode}
+            currentReview={currentReview}
+            onCancelEdit={handleCancelEdit}
+            onUpdate={(updatedReview) => {
+              setProduct((prevProduct) => ({
+                ...prevProduct,
+                reviews: prevProduct.reviews.map((review) =>
+                  review._id === updatedReview._id ? updatedReview : review
+                ),
+              }));
+              setEditMode(false);
+              setCurrentReview(null);
+            }}
+          />
         </Box>
       </Box>
     </Container>

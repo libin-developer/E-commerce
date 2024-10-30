@@ -1,15 +1,15 @@
-
 import Razorpay from 'razorpay';
 import Payment from '../DBmodels/paymentmodel.js';
-import Product from "../DBmodels/productsmodel.js"
+import Product from "../DBmodels/productsmodel.js";
 import serverconfig from '../Config/serverconfig.js';
-
+import Cart from '../DBmodels/cartmodel.js';
 
 const razorpay = new Razorpay({
   key_id: serverconfig.Razorpaykeyid, // Your Razorpay key ID
   key_secret: serverconfig.Razorpaysecret, // Your Razorpay secret
 });
 
+// Create a Razorpay order
 export const createOrder = async (req, res) => {
   try {
     const { amount, currency } = req.body;
@@ -17,7 +17,7 @@ export const createOrder = async (req, res) => {
     const options = {
       amount: amount * 100, // Convert to paise
       currency,
-      receipt: `receipt_${Math.random().toString(36).substring(2, 15)}`,
+      receipt: `receipt_${Math.random().toString(36).substring(2, 15)}`, // Unique receipt ID
     };
 
     const order = await razorpay.orders.create(options);
@@ -29,45 +29,76 @@ export const createOrder = async (req, res) => {
   }
 };
 
+// Capture the payment and update stock
 export const capturePayment = async (req, res) => {
   try {
-    const { paymentId, orderId, amount, productId, userId, paymentStatus } = req.body;
+    const { paymentId, orderId, amount, userId, paymentStatus } = req.body;
 
-    // Save the payment details in the database
+    // Find the user's cart
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: 'Cart is empty or not found' });
+    }
+
+    // Save the payment details (without products initially)
     const payment = await Payment.create({
       paymentId,
       orderId,
       amount,
-      productId,
       userId,
-      status: paymentStatus || 'pending', // Default to 'pending' if status is not provided
+      status: paymentStatus || 'pending', // Default to 'pending' if not provided
     });
 
-    // Update product stock
-    if (paymentStatus === 'success') { // Only update stock if the payment is successful
-      const product = await Product.findById(productId);
+    // Only update stock if payment is successful
+    if (paymentStatus === 'captured') {
+      for (const item of cart.items) {
+        const product = await Product.findById(item.productId._id);
 
-      if (product) {
-        // Check if there is enough stock
-        if (product.stock > 0) {
-          product.stock -= 1; // Decrease stock by 1 or by the quantity purchased
+        if (!product) {
+          return res.status(404).json({ message: `Product not found: ${item.productName}` });
+        }
+
+        // Check if there's enough stock
+        if (product.stock >= item.quantity) {
+          product.stock -= item.quantity; // Deduct the purchased quantity from stock
           await product.save();
         } else {
-          return res.status(400).json({ message: 'Insufficient stock' });
+          return res.status(400).json({ message: `Insufficient stock for ${item.productName}` });
         }
-      } else {
-        return res.status(404).json({ message: 'Product not found' });
-      }
-    }
 
-    // Respond with success
-    res.status(200).json({ message: 'Payment details saved successfully and stock updated', payment });
+        // Add product details to the payment record
+        payment.products.push({
+          productId: item.productId._id,
+          productName: item.productName,
+          quantity: item.quantity,
+          price: item.price,
+        });
+      }
+
+      // Save updated payment with products
+      await payment.save();
+
+      // Clear only the items and totalAmount in the user's cart, keep cartId and userId
+      await Cart.findByIdAndUpdate(cart._id, {
+        $set: {
+          items: [],
+          totalAmount: 0,
+        },
+      });
+
+      res.status(200).json({ message: 'Payment successful, stock updated, and cart cleared', payment });
+    } else {
+      res.status(400).json({ message: 'Payment failed, stock not updated' });
+    }
   } catch (error) {
-    console.error('Error saving payment details:', error);
-    res.status(500).json({ message: 'Failed to save payment details' });
+    console.error('Error processing payment:', error);
+    res.status(500).json({ message: 'Failed to capture payment' });
   }
 };
 
+
+// Get transactions for a specific user
 export const getTransactions = async (req, res) => {
   try {
     const { userId } = req.params;

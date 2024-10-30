@@ -1,92 +1,140 @@
-import { useState } from 'react';
-import { TextField, Button, Rating, Typography, Box, Paper } from '@mui/material';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { Box, Button, TextField, Rating, Typography, useTheme } from '@mui/material';
 import toast from 'react-hot-toast';
-import PropTypes from 'prop-types';
 
-export default function ReviewForm({productId}) {
-
-  ReviewForm.propTypes = {
-    productId: PropTypes.string.isRequired,
-  };
-
-  const { id } = useParams();  // Assuming 'id' refers to the product ID from the URL
-  const [comment, setComment] = useState('');
+const ReviewForm = ({ productId, editMode, currentReview, onCancelEdit, onUpdate }) => {
   const [rating, setRating] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [comment, setComment] = useState('');
+  const theme = useTheme();
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    if (editMode && currentReview) {
+      setRating(currentReview.rating);
+      setComment(currentReview.comment);
+      formRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [editMode, currentReview]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (comment && rating > 0) {
-      setLoading(true);
-      setError('');
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      toast.error('Please log in to submit a review');
+      return;
+    }
 
-      try {
-        const reviewer = localStorage.getItem("username");  // Fetch the username from localStorage
-
-        const review = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}review/add-review/${id}`, {
-          comment,
-          rating,
-          productId,  // Pass the correct product ID
-          reviewer,
-        },{withCredentials:true});
-
-        console.log('Review submitted:', review.data);
-       
-          setComment('');
-          setRating(0);
-          if(review.data.success){
-            toast.success(review.data.message);
-            window.location.reload();
-           }
-           else{
-            toast.error(review.data.message)
-           }
-       
-      } catch (err) {
-        setError('Failed to submit review. Please try again later.');
-        console.error('Error submitting review:', err);
-      } finally {
-        setLoading(false);
+    try {
+      if (editMode && currentReview) {
+        const response = await axios.put(
+          `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}review/update/${userId}/${currentReview._id}`,
+          { rating, comment },
+          { withCredentials: true }
+        );
+        if (response.data.success) {
+          onUpdate(response.data.review);
+          toast.success('Review updated successfully');
+        }
+      } else {
+        const reviewer = localStorage.getItem("userId");
+        await axios.post(
+          `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}review/add-review/${productId}`,
+          { 
+            comment,
+            rating,
+            productId,
+            reviewer,
+          },
+          { withCredentials: true }
+        );
+        window.location.reload();
+        toast.success('Review submitted successfully');
       }
-    } else {
-      setError('Please provide both a comment and a rating.');
+      setRating(0);
+      setComment('');
+    } catch (error) {
+      toast.error('Failed to submit review');
     }
   };
 
   return (
-    <Paper elevation={3} sx={{ padding: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        Post your Review
+    <Box 
+      mb={4}
+      sx={{
+        backgroundColor: theme.palette.mode === 'dark' ? '#333333' : 'whitesmoke',
+        color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
+        p: 3,
+        borderRadius: 2,
+        boxShadow: 3
+      }}
+      ref={formRef}
+    >
+      <Typography 
+        variant="h6" 
+        sx={{
+          mb: 2,
+          color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000'
+        }}
+      >
+        Post Your Review
       </Typography>
-      <form onSubmit={handleSubmit}>
-        <Box mb={2}>
-          <TextField
-            label="Write your review"
-            multiline
-            rows={4}
-            fullWidth
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            variant="outlined"
-          />
-        </Box>
-        <Box mb={2}>
-          <Typography component="legend">Rating</Typography>
-          <Rating
-            name="review-rating"
-            value={rating}
-            onChange={(e, newValue) => setRating(newValue)}
-            size="large"
-          />
-        </Box>
-        {error && <Typography color="error" mb={2}>{error}</Typography>}
-        <Button type="submit" variant="contained" color="primary" disabled={loading}>
-          {loading ? 'Submitting...' : 'Submit Review'}
+
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          mb: 2,
+        }}
+      >
+        <Typography 
+          sx={{ 
+            color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333',
+            mr: 2
+          }}
+        >
+          Rate Our Product
+        </Typography>
+        <Rating 
+          value={rating} 
+          onChange={(e, newValue) => setRating(newValue)} 
+          sx={{
+            color: theme.palette.mode === 'dark' ? '#ffffff' : '#ffb400'
+          }}
+        />
+      </Box>
+
+      <TextField
+        label="Comment"
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        multiline
+        rows={4}
+        fullWidth
+        sx={{
+          mb: 2,
+          backgroundColor: theme.palette.mode === 'dark' ? '#444444' : '#f0f0f0',
+          '& .MuiInputBase-input': {
+            color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333',
+          },
+          '& .MuiInputLabel-root': {
+            color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333',
+          },
+        }}
+      />
+
+      <Box display="flex" justifyContent="flex-start">
+        <Button variant="contained" color="primary" type="submit" onClick={handleSubmit}>
+          {editMode ? 'Update Review' : 'Submit Review'}
         </Button>
-      </form>
-    </Paper>
+        {editMode && (
+          <Button onClick={onCancelEdit} sx={{ ml: 2 }}>
+            Cancel
+          </Button>
+        )}
+      </Box>
+    </Box>
   );
-}
+};
+
+export default ReviewForm;

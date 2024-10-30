@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
   const [adminInfo] = useState({
-    name: localStorage.getItem("adminname"),
+    name: localStorage.getItem("username"),
     email: localStorage.getItem("email"),
     role: localStorage.getItem("role"),
   });
@@ -21,7 +21,8 @@ const AdminDashboard = () => {
     totalUsers: 0,
   });
   
-  const [open, setOpen] = useState(false);  // State to handle dialog visibility
+  const [openDelete, setOpenDelete] = useState(false);  // State for delete dialog visibility
+  const [openLogout, setOpenLogout] = useState(false); // State for logout dialog visibility
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,42 +41,62 @@ const AdminDashboard = () => {
   }, []);
 
   const handleDeleteAccount = async () => {
-    const id =localStorage.getItem("adminId")
+    const id = localStorage.getItem("userId");
     try {
-     const res =await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}admin/delete-admin/${id}`,{
-        withCredentials:true
+      const res = await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/delete-account/${id}`, {
+        withCredentials: true
       });
-      if(res.data.success){
-      deleteCookie();
-      localStorage.clear();
-      toast.success(res.data.message)
-      navigate('/admin');
-      }else{
-        toast.error(res.data.message)
+      if (res.data.success) {
+        deleteCookie();
+        localStorage.clear();
+        toast.success(res.data.message);
+        navigate('/signin');
+      } else {
+        toast.error(res.data.message);
       }
-     
     } catch (error) {
       console.error('Error deleting account:', error);
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/logout`, {}, {
+        withCredentials: true,
+      });
+      if (response.data.success) {
+        deleteCookie();
+        localStorage.clear();
+        toast.success('Successfully logged out');
+        navigate('/signin');
+      } else {
+        toast.error('Logout failed');
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast.error("An error occurred during logout.");
+    }
+  };
+
   const handleForgetPassword = () => {
-    navigate("/admin/forgetpassword");
+    navigate("/signin/forgetpassword");
     deleteCookie();
     localStorage.clear();
   };
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
+  // Dialog control handlers
+  const handleOpenDeleteDialog = () => setOpenDelete(true);
+  const handleCloseDeleteDialog = () => setOpenDelete(false);
   const handleConfirmDelete = () => {
     handleDeleteAccount();
-    handleClose();
+    handleCloseDeleteDialog();
+  };
+
+  const handleOpenLogoutDialog = () => setOpenLogout(true);
+  const handleCloseLogoutDialog = () => setOpenLogout(false);
+  const handleConfirmLogout = () => {
+    handleLogout();
+    handleCloseLogoutDialog();
   };
 
   return (
@@ -83,10 +104,16 @@ const AdminDashboard = () => {
       {/* Sidebar */}
       <div className="w-full sm:w-1/4 p-6 bg-gray-800 shadow-md flex-shrink-0">
         <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
-        <div className="space-y-2">
-          <p className="text-lg font-semibold">Name: {adminInfo.name}</p>
-          <p className="text-md">Email: {adminInfo.email}</p>
-          <p className="text-md">Role: {adminInfo.role}</p>
+        <div className="space-y-4">
+          {/* Admin Info Boxes */}
+          {Object.entries(adminInfo).map(([key, value]) => (
+            <div key={key} className="p-4 rounded-md bg-gray-700 shadow-md">
+              <p className="text-lg font-semibold">
+                {key.charAt(0).toUpperCase() + key.slice(1)}:
+              </p>
+              <p className="text-md">{value}</p>
+            </div>
+          ))}
         </div>
         <div className="mt-8 space-y-4">
           <button
@@ -96,75 +123,91 @@ const AdminDashboard = () => {
             Forget Password
           </button>
           <button
-            onClick={handleClickOpen}
+            onClick={handleOpenDeleteDialog}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
           >
             Delete Account
+          </button>
+          <button
+            onClick={handleOpenLogoutDialog}
+            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Logout
           </button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Stats Boxes */}
         <div className="p-4 rounded-lg shadow-md bg-blue-500 flex items-center space-x-4">
           <FaBox className="text-3xl" />
           <div>
-            <h3 className="text-lg font-semibold text-smoky-white">Total Products</h3>
-            <p className="text-2xl font-bold text-white">{stats.totalProducts}</p>
+            <h3 className="text-lg font-semibold">Total Products</h3>
+            <p className="text-2xl font-bold">{stats.totalProducts}</p>
           </div>
         </div>
-
         <div className="p-4 rounded-lg shadow-md bg-green-500 flex items-center space-x-4">
           <FaStar className="text-3xl" />
           <div>
-            <h3 className="text-lg font-semibold text-smoky-white">Total Reviews</h3>
-            <p className="text-2xl font-bold text-white">{stats.totalReviews}</p>
+            <h3 className="text-lg font-semibold">Total Reviews</h3>
+            <p className="text-2xl font-bold">{stats.totalReviews}</p>
           </div>
         </div>
-
         <div className="p-4 rounded-lg shadow-md bg-orange-500 flex items-center space-x-4">
           <FaShoppingCart className="text-3xl" />
           <div>
-            <h3 className="text-lg font-semibold text-smoky-white">Total Orders</h3>
-            <p className="text-2xl font-bold text-white">{stats.totalOrders}</p>
+            <h3 className="text-lg font-semibold">Total Orders</h3>
+            <p className="text-2xl font-bold">{stats.totalOrders}</p>
           </div>
         </div>
-
         <div className="p-4 rounded-lg shadow-md bg-purple-500 flex items-center space-x-4">
           <FaStore className="text-3xl" />
           <div>
-            <h3 className="text-lg font-semibold text-smoky-white">Total Sellers</h3>
-            <p className="text-2xl font-bold text-white">{stats.totalSellers}</p>
+            <h3 className="text-lg font-semibold">Total Sellers</h3>
+            <p className="text-2xl font-bold">{stats.totalSellers}</p>
           </div>
         </div>
-
         <div className="p-4 rounded-lg shadow-md bg-red-500 flex items-center space-x-4">
           <FaUsers className="text-3xl" />
           <div>
-            <h3 className="text-lg font-semibold text-smoky-white">Total Users</h3>
-            <p className="text-2xl font-bold text-white">{stats.totalUsers}</p>
+            <h3 className="text-lg font-semibold">Total Users</h3>
+            <p className="text-2xl font-bold">{stats.totalUsers}</p>
           </div>
         </div>
       </div>
 
       {/* Delete Account Confirmation Dialog */}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Delete Account Confirmation"}</DialogTitle>
+      <Dialog open={openDelete} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>Delete Account Confirmation</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText>
             Are you sure you want to delete your account? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleCloseDeleteDialog} color="primary">
             Cancel
           </Button>
           <Button onClick={handleConfirmDelete} color="secondary" autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog open={openLogout} onClose={handleCloseLogoutDialog}>
+        <DialogTitle>Logout Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to log out?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseLogoutDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmLogout} color="secondary" autoFocus>
             Confirm
           </Button>
         </DialogActions>

@@ -45,7 +45,7 @@ export default function Usersignup({ href }) {
         localStorage.setItem("email", response.data.email);
         localStorage.setItem("userId", response.data._id);
         toast.success(response.data.message);
-        navigate("/home");
+        navigate("/");
       } else {
         toast.error(response.data.message);
       }

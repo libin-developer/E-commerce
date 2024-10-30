@@ -14,11 +14,6 @@ const schema = yup.object({
 }).required();
 
 const Signin = ({ href, forget }) => {
-  Signin.propTypes = {
-    href: PropTypes.string.isRequired,
-    forget: PropTypes.string.isRequired,
-  };
-
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const [email, setEmail] = useState('');
@@ -28,10 +23,7 @@ const Signin = ({ href, forget }) => {
   const onSubmit = async () => {
     setLoading(true); // Start loading
     try {
-      const data = {
-        email,
-        password,
-      };
+      const data = { email, password };
 
       const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/signin`, data, {
         withCredentials: true,
@@ -41,14 +33,16 @@ const Signin = ({ href, forget }) => {
         localStorage.setItem("userId", response.data._id);
         localStorage.setItem("username", response.data.username);
         localStorage.setItem("email", response.data.email);
+        localStorage.setItem("role", response.data.role); // Store role in local storage
         toast.success(response.data.message);
-        navigate("/home");
+        navigate("/");
       } else {
         toast.error(response.data.message || "Signin failed");
       }
     } catch (error) {
       console.error("Error during sign-in:", error);
       toast.error(error.response?.data?.message || "An error occurred during sign-in.");
+      navigate("/signin");
     } finally {
       setLoading(false); // Stop loading
     }
@@ -109,6 +103,11 @@ const Signin = ({ href, forget }) => {
       </div>
     </div>
   );
+};
+
+Signin.propTypes = {
+  href: PropTypes.string.isRequired,
+  forget: PropTypes.string.isRequired,
 };
 
 export default Signin;
