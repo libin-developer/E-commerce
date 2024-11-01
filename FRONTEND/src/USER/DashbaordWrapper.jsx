@@ -1,42 +1,24 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import UserDashboard from './Userdashboard';
 import AdminDashboard from '../ADMIN/Admindashboard';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardWrapper = () => {
     const [role, setRole] = useState(null);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchUserRole = async () => {
-            try {
-                const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}user/user-role`,{
-                    withCredentials: true
-                  });
-                const userRole = response.data.role;
+        // Check success and role stored in local storage (or cookies if preferred)
+        const success = JSON.parse(localStorage.getItem("success"));
+        const storedRole = localStorage.getItem("role");
 
-                if (userRole) {
-                    setRole(userRole);
-                } else {
-                    // If no role found, redirect to login
-                    navigate('/signin');
-                }
-            } catch (error) {
-                console.error("Error fetching user role:", error);
-                navigate('/signin');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUserRole();
+        if (success && storedRole) {
+            setRole(storedRole);
+        } else {
+            // Redirect to login if role or success flag is not found
+            navigate('/signin');
+        }
     }, [navigate]);
-
-    if (loading) {
-        return <div>Loading...</div>; // Optionally add a loading spinner
-    }
 
     // Render the appropriate dashboard based on the role
     if (role === "user") {
@@ -44,8 +26,7 @@ const DashboardWrapper = () => {
     } else if (role === "admin") {
         return <AdminDashboard />;
     } else {
-        navigate('/signin'); // Redirect if role is undefined or invalid
-        return null;
+        return null; // Optionally add a loading spinner or redirect if role is undefined
     }
 };
 

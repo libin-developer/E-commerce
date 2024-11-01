@@ -14,17 +14,17 @@ UserRouter.get("/get-user",authenticateUser,getUserName)
 UserRouter.delete("/delete-account/:id",authenticateUser,deleteuser)
 UserRouter.get("/totalusers/",authenticateUser,Totalusers)
 UserRouter.post("/logout", authenticateUser, userLogout); 
-UserRouter.get('/user-role', (req, res) => {
-    const { admintoken, token } = req.cookies.para;
+// UserRouter.get('/user-role', (req, res) => {
+//     const { admintoken, token } = req.cookies;
 
-    if (admintoken) {
-        return res.json({ role: 'admin' });
-    } else if (token) {
-        return res.json({ role: 'user' });
-    } else {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-});
+//     if (admintoken) {
+//         return res.json({ role: 'admin' });
+//     } else if (token) {
+//         return res.json({ role: 'user' });
+//     } else {
+//         return res.status(401).json({ message: 'Unauthorized' });
+//     }
+// });
 
 
 
