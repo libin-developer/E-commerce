@@ -15,11 +15,10 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(cors(
   {
-    origin:"https://e-commerce-ssfp.onrender.com/api/v1/",  
+    origin:"https://e-commerce-omega-virid.vercel.app", //frontend port link or deploymet link
     credentials:true,
   }
 ))
-https://e-commerce-omega-virid.vercel.app frontend prot
 
 connect();
 app.get("/", (req, res) => {
