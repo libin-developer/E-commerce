@@ -47,7 +47,7 @@ export function Forgetsellerpassword({ href }) {
   return (
     <div className="bg-black min-h-screen flex justify-center">
       <div className="w-full max-w-md py-8">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-white text-center mb-8">Forget Password</h1>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-white text-center mb-8">Forgot Password</h1>
         <div className="bg-teal-300 p-6 rounded-md shadow-lg">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
