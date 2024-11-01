@@ -180,3 +180,17 @@ export const deleteseller = async (req, res) => {
     }
    
   }
+  // Logout User by invalidating the token
+export const SellerLogout = async (req, res) => {
+  try {
+    // Clear the JWT token from cookies and handle token expiration
+     res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "None" });
+    res.clearCookie("admintoken", { httpOnly: true, secure: true, sameSite: "None" });
+
+    console.log("seller logged out successfully");
+    return res.status(200).send({ message: "seller logged out successfully", success: true });
+  } catch (error) {
+    console.log("Logout failed", error);
+    return res.status(500).send({ message: "Logout failed", error, success: false });
+  }
+};

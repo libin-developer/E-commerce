@@ -48,9 +48,6 @@ export function Sellerdashboard() {
 
     const onForgetPassword = () => {
         deleteCookie();
-        localStorage.removeItem("sellername");
-        localStorage.removeItem("email");
-        localStorage.removeItem("sellerId");
         navigate("/seller/forgetpassword");
     };
 
@@ -63,7 +60,6 @@ export function Sellerdashboard() {
             });
 
             if (deleteuser.data.success) {
-                deleteCookie();
                 localStorage.clear();
                 navigate("/seller");
                 toast.success(deleteuser.data.message);

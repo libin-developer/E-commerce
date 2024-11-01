@@ -93,7 +93,7 @@ export const usersignin = async (req, res) => {
     if (user.role === "admin") {
       // Issue an admin token if the user role is admin
       token = adminToken(user);
-      res.cookie("admintoken", token, { httpOnly: true, secure: true, sameSite: "None" });
+      res.cookie("admintoken", token, { httpOnly: true, secure: true, sameSite: "None",success:true });
     } else {
       // Issue a standard token for regular users
       token = generateToken(email);

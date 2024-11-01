@@ -66,11 +66,7 @@ const UserDashboard = () => {
     
             if (response.data.success) {
                 // Remove cookies and localStorage items related to user session
-                localStorage.removeItem("username");
-                localStorage.removeItem("email");
-                localStorage.removeItem("userId");
-                localStorage.removeItem("cart"); // Clear cart from local storage
-                localStorage.removeItem("cartItemCount"); // Clear cart item count from local storage
+                localStorage.clear();
     
                 toast.success("You have been logged out");
                 navigate("/signin");

@@ -212,9 +212,9 @@ export const searchproducts =async(req,res)=>{
 
 // total products
 
-export const Totalstatus =async(req,res)=>{
+export const Totalstatus = async (req, res) => {
   try {
-    const [totalProducts, totalReviews,totalOrders,totalSellers, totalUsers] = await Promise.all([
+    const [totalProducts, totalReviews, totalOrders, totalSellers, totalUsers] = await Promise.all([
       Product.countDocuments(),
       Review.countDocuments(),
       Payment.countDocuments({ status: 'captured' }),
@@ -223,18 +223,20 @@ export const Totalstatus =async(req,res)=>{
     ]);
 
     // Send response with all stats
-    res.json({message:'all stats',
+    res.status(200).json({
+      message: 'All stats retrieved successfully',
       totalProducts,
       totalReviews,
       totalOrders,
       totalSellers,
       totalUsers,
-      success:true
+      success: true,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Error in Totalstatus:', error); // Log the error for debugging
+    res.status(500).json({ message: 'Server Error', success: false });
   }
-}
+};
 
 
 //Totalreview each seller

@@ -3,7 +3,7 @@ import { FaMoon, FaSun, FaUser, FaPlusCircle, FaHome } from 'react-icons/fa';
 import Logo from '../assets/BUYKART.jpg.png';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { deleteCookie } from '../../uTILS/Removecookies';
+import axios from 'axios';
 
 const Sellerhomenav = () => {
   const navigate = useNavigate();
@@ -44,16 +44,26 @@ const Sellerhomenav = () => {
     navigate("/sellerhome/add-product");
   };
 
-  const logout = () => {
-    deleteCookie();
-    localStorage.removeItem("sellername");
-    localStorage.removeItem("email");
-    localStorage.removeItem("darkMode");
-    localStorage.removeItem("sellerId");
-    toast.success("You have been logged out");
-    navigate("/seller");
-    window.location.reload();
-  };
+  const logout = async () => {
+    try {
+        const response = await axios.post(
+            `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}seller/logoutseller`,
+            { withCredentials: true }
+        );
+
+        if (response.data.success) {
+            localStorage.clear();
+            toast.success("You have been logged out");
+            navigate("/seller");
+            window.location.reload();
+        } else {
+            toast.error(response.data.message || "Failed to log out");
+        }
+    } catch (error) {
+        console.error("Logout error:", error);
+        toast.error("An error occurred while logging out.");
+    }
+};
 
   return (
     <nav className="bg-zinc-300 dark:bg-gray-800 shadow-md p-4">
