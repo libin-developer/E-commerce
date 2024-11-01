@@ -8,14 +8,12 @@ const DashboardWrapper = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Check success and role stored in local storage (or cookies if preferred)
-        const success = JSON.parse(localStorage.getItem("success"));
+        // Retrieve role from localStorage and set it in state
         const storedRole = localStorage.getItem("role");
-
-        if (success && storedRole) {
+        if (storedRole) {
             setRole(storedRole);
         } else {
-            // Redirect to login if role or success flag is not found
+            // Redirect to login if role is not found
             navigate('/signin');
         }
     }, [navigate]);
