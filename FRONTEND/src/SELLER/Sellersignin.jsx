@@ -95,7 +95,7 @@ export function Sellersignin({ href, forget }) {
                 </div>
                 <div className="text-center mt-4">
                   <a className="text-black-400 block mb-2" href={href}>I don't have an account?</a>
-                  <a className="text-black-400" href={forget}>Forget Password?</a>
+                  <a className="text-black-400" href={forget}>Forgot Password?</a>
                 </div>
               </div>
             </form>
